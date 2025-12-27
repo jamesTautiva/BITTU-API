@@ -1,0 +1,110 @@
+%% Data model diagram for BITU
+%% Generated: 2025-12-26
+erDiagram
+  USER {
+    INTEGER id PK
+    STRING username
+    STRING email
+    STRING role
+    STRING avatar_url
+    BOOLEAN active
+  }
+
+  ARTIST {
+    INTEGER id PK
+    INTEGER user_id FK
+    STRING name
+    TEXT bio
+    STRING image_url
+    ENUM status
+  }
+
+  ALBUM {
+    INTEGER id PK
+    INTEGER artist_id FK
+    INTEGER genre_id FK
+    STRING title
+    STRING cover_url
+    DATE release_date
+    ENUM status
+  }
+
+  SONG {
+    INTEGER id PK
+    INTEGER album_id FK
+    STRING title
+    STRING audio_url
+    DATETIME created_at
+    DATETIME updated_at
+  }
+
+  COMMENT {
+    INTEGER id PK
+    INTEGER user_id FK
+    INTEGER song_id FK
+    INTEGER album_id FK
+    STRING content
+    DATETIME created_at
+  }
+
+  GENRE {
+    INTEGER id PK
+    STRING name
+  }
+
+  ALBUM_GENRE {
+    INTEGER album_id FK
+    INTEGER genre_id FK
+  }
+
+  PLAYLIST {
+    INTEGER id PK
+    INTEGER user_id FK
+    STRING name
+    BOOLEAN is_public
+  }
+
+  PLAYLIST_SONG {
+    INTEGER playlist_id FK
+    INTEGER song_id FK
+  }
+
+  FAVORITE {
+    INTEGER id PK
+    INTEGER user_id FK
+    INTEGER song_id FK
+    DATETIME created_at
+  }
+
+  NOTIFICATION {
+    INTEGER id PK
+    INTEGER user_id FK
+    STRING message
+    BOOLEAN is_read
+  }
+
+  PLAYBACK_LOG {
+    INTEGER id PK
+    INTEGER user_id FK
+    INTEGER song_id FK
+    STRING device_type
+    STRING device_os
+    STRING device_model
+    STRING ip_address
+    DATETIME played_at
+  }
+
+  %% Relaciones
+  USER ||--o{ ARTIST : "puede tener (1:1 opcional)"
+  ARTIST ||--o{ ALBUM : "tiene"
+  ALBUM ||--o{ SONG : "contiene"
+  SONG ||--o{ COMMENT : "tiene"
+  USER ||--o{ COMMENT : "escribe"
+  ALBUM ||--o{ COMMENT : "tiene (opcional)"
+  ALBUM }|..|{ GENRE : "clasificado como"
+  PLAYLIST }|..|{ SONG : "contiene (m:n via PLAYLIST_SONG)"
+  USER }|..|{ SONG : "marca favorito (m:n via FAVORITE)"
+  USER ||--o{ PLAYLIST : "crea"
+  USER ||--o{ NOTIFICATION : "recibe"
+  USER ||--o{ PLAYBACK_LOG : "genera"
+  SONG ||--o{ PLAYBACK_LOG : "es reproducida en"
