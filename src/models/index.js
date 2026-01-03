@@ -19,7 +19,10 @@ db.AlbumGenre = require('./albumGenres')(sequelize, DataTypes);
 db.Notification = require('./notification')(sequelize, DataTypes);
 db.Favorite = require('./favorites')(sequelize, DataTypes);
 db.PlaylistSong = require('./playlistSongs')(sequelize, DataTypes);
+
 db.PlaybackLog = require('./playbackLog')(sequelize, DataTypes);
+db.LegalDocument = require('./LegalDocument')(sequelize, DataTypes);
+db.LegalAcceptance = require('./LegalAcceptance')(sequelize, DataTypes);
 //relationships
 
 db.User.hasOne(db.Artist, { foreignKey: 'user_id', onDelete: 'CASCADE' });
@@ -64,6 +67,14 @@ db.User.hasMany(db.PlaybackLog, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 db.PlaybackLog.belongsTo(db.User, { foreignKey: 'user_id' });
 
 db.Song.hasMany(db.PlaybackLog, { foreignKey: 'song_id', onDelete: 'CASCADE' });
+
 db.PlaybackLog.belongsTo(db.Song, { foreignKey: 'song_id' });
+
+// Legal Documents & Acceptances
+db.LegalDocument.hasMany(db.LegalAcceptance, { foreignKey: 'legalDocumentId' });
+db.LegalAcceptance.belongsTo(db.LegalDocument, { foreignKey: 'legalDocumentId' });
+
+db.User.hasMany(db.LegalAcceptance, { foreignKey: 'userId' });
+db.LegalAcceptance.belongsTo(db.User, { foreignKey: 'userId' });
 
 module.exports = db;

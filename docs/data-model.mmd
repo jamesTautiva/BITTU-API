@@ -94,6 +94,25 @@ erDiagram
     DATETIME played_at
   }
 
+  LEGAL_DOCUMENT {
+    INTEGER id PK
+    ENUM type
+    STRING version
+    STRING title
+    TEXT content
+    BOOLEAN is_active
+    DATETIME createdAt
+  }
+
+  LEGAL_ACCEPTANCE {
+    INTEGER id PK
+    INTEGER user_id FK
+    INTEGER legal_document_id FK
+    STRING ip_address
+    STRING user_agent
+    DATETIME acceptedAt
+  }
+
   %% Relaciones
   USER ||--o{ ARTIST : "puede tener (1:1 opcional)"
   ARTIST ||--o{ ALBUM : "tiene"
@@ -108,3 +127,5 @@ erDiagram
   USER ||--o{ NOTIFICATION : "recibe"
   USER ||--o{ PLAYBACK_LOG : "genera"
   SONG ||--o{ PLAYBACK_LOG : "es reproducida en"
+  LEGAL_DOCUMENT ||--o{ LEGAL_ACCEPTANCE : "tiene"
+  USER ||--o{ LEGAL_ACCEPTANCE : "acepta"

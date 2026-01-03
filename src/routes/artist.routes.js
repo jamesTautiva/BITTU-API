@@ -3,10 +3,12 @@ const artistController = require('../controllers/artist.controller');
 const { imageUpload } = require('../middleware/upload.middleware');
 const { authenticate } = require('../middleware/auth.middleware');
 
-router.post('/create', artistController.createArtist);
+const { ensureContractAccepted } = require('../middleware/legalCheck');
+
+router.post('/create', authenticate, ensureContractAccepted, artistController.createArtist);
 router.get('/get-all', artistController.getAllArtists);
 router.get('/get-artist-by-id/:id', artistController.getArtistById);
-router.put('/update/:id', artistController.updateArtist);
+router.put('/update/:id', authenticate, ensureContractAccepted, artistController.updateArtist);
 router.delete('/delete/:id', artistController.deleteArtist);
 router.post('/:id/image', authenticate, imageUpload('file'), artistController.uploadImage);
 router.get('/user/:userId', artistController.getArtistByUserId);
