@@ -3,7 +3,7 @@ const { generateToken } = require('../utils/jwt');
 
 exports.register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
 
     // basic validations
     if (!username || !email || !password) {
@@ -17,11 +17,21 @@ exports.register = async (req, res) => {
     if (exists) {
       return res.status(409).json({ message: 'Email already in use' });
     }
+    if (!role) {
+      return res.status(400).json({ message: 'role is required' });
+    }
+
+    // roles permitidos
+    const allowedRoles = ['user', 'admin', 'super_admin', 'artist', 'publisher', 'moderator','support'];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ message: 'Invalid role' });
+    }
 
     const user = await User.create({
       username,
       email,
-      password
+      password,
+      role
     });
 
     const token = generateToken({

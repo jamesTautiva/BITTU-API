@@ -3,17 +3,7 @@ const { User } = require('../models');
 const path = require('path');
 const { uploadFile } = require('../utils/supabaseClient');
 
-// get all users
-exports.getAllUsers = async (req, res) => {
-  try {
-    const users = await User.findAll({
-      attributes: { exclude: ['password'] }
-    });
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+
 
 // get user profile
 exports.getProfile = async (req, res) => {
@@ -133,6 +123,60 @@ exports.uploadAvatar = async (req, res) => {
     user.avatar_url = url;
     await user.save();
     res.json({ message: 'Avatar subido', url });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// endpoints para admins
+// get all users
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] }
+    });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// get user by id
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id, {
+      attributes: { exclude: ['password'] }
+    });
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// update user
+exports.updateUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    const { username, email, role } = req.body;
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (role) user.role = role;
+    await user.save();
+    res.json({ message: 'Usuario actualizado', user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// delete user
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    await user.destroy();
+    res.json({ message: 'Usuario eliminado' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
