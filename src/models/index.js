@@ -23,6 +23,12 @@ db.PlaylistSong = require('./playlistSongs')(sequelize, DataTypes);
 db.PlaybackLog = require('./playbackLog')(sequelize, DataTypes);
 db.LegalDocument = require('./LegalDocument')(sequelize, DataTypes);
 db.LegalAcceptance = require('./LegalAcceptance')(sequelize, DataTypes);
+db.Member = require('./member')(sequelize, DataTypes);
+db.Compositor = require('./compositor')(sequelize, DataTypes);
+db.Ticket = require('./ticket')(sequelize, DataTypes);
+db.TicketCategory = require('./ticketCategory')(sequelize, DataTypes);
+db.TicketMessage = require('./ticketMessage')(sequelize, DataTypes);
+db.TicketAttachment = require('./ticketAttachment')(sequelize, DataTypes);
 //relationships
 
 db.User.hasOne(db.Artist, { foreignKey: 'user_id', onDelete: 'CASCADE' });
@@ -76,5 +82,38 @@ db.LegalAcceptance.belongsTo(db.LegalDocument, { foreignKey: 'legalDocumentId' }
 
 db.User.hasMany(db.LegalAcceptance, { foreignKey: 'userId' });
 db.LegalAcceptance.belongsTo(db.User, { foreignKey: 'userId' });
+
+// Artist and Members relationship
+db.Artist.hasMany(db.Member, { foreignKey: 'artist_id', onDelete: 'CASCADE' });
+db.Member.belongsTo(db.Artist, { foreignKey: 'artist_id' });
+
+// Song and Compositors relationship
+db.Song.hasMany(db.Compositor, { foreignKey: 'song_id', onDelete: 'CASCADE' });
+db.Compositor.belongsTo(db.Song, { foreignKey: 'song_id' });
+
+// Ticket System relationships
+db.User.hasMany(db.Ticket, { foreignKey: 'user_id', as: 'createdTickets', onDelete: 'CASCADE' });
+db.Ticket.belongsTo(db.User, { foreignKey: 'user_id', as: 'creator' });
+
+db.User.hasMany(db.Ticket, { foreignKey: 'assigned_to', as: 'assignedTickets', onDelete: 'SET NULL' });
+db.Ticket.belongsTo(db.User, { foreignKey: 'assigned_to', as: 'assignedTo' });
+
+db.TicketCategory.hasMany(db.Ticket, { foreignKey: 'category_id', onDelete: 'RESTRICT' });
+db.Ticket.belongsTo(db.TicketCategory, { foreignKey: 'category_id' });
+
+db.Ticket.hasMany(db.TicketMessage, { foreignKey: 'ticket_id', onDelete: 'CASCADE' });
+db.TicketMessage.belongsTo(db.Ticket, { foreignKey: 'ticket_id' });
+
+db.User.hasMany(db.TicketMessage, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+db.TicketMessage.belongsTo(db.User, { foreignKey: 'user_id' });
+
+db.Ticket.hasMany(db.TicketAttachment, { foreignKey: 'ticket_id', onDelete: 'CASCADE' });
+db.TicketAttachment.belongsTo(db.Ticket, { foreignKey: 'ticket_id' });
+
+db.TicketMessage.hasMany(db.TicketAttachment, { foreignKey: 'message_id', onDelete: 'CASCADE' });
+db.TicketAttachment.belongsTo(db.TicketMessage, { foreignKey: 'message_id' });
+
+db.User.hasMany(db.TicketAttachment, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+db.TicketAttachment.belongsTo(db.User, { foreignKey: 'user_id' });
 
 module.exports = db;
