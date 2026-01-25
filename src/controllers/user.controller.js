@@ -166,25 +166,39 @@ exports.getUserById = async (req, res) => {
 // update user
 exports.updateUser = async (req, res) => {
   try {
+    console.log('Update user request params:', req.params);
+    console.log('Update user request body:', req.body);
+    
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    
     const { username, email, role } = req.body;
+    console.log('Current user data:', user.toJSON());
     
     // Validar rol si se proporciona
     if (role) {
       const allowedRoles = ['user', 'admin', 'super_admin', 'artist', 'publisher', 'moderator', 'support'];
+      console.log('Role to update:', role);
+      console.log('Allowed roles:', allowedRoles);
+      
       if (!allowedRoles.includes(role)) {
+        console.log('Invalid role detected');
         return res.status(400).json({ error: 'Rol inválido' });
       }
       user.role = role;
+      console.log('Role updated successfully');
     }
     
     if (username) user.username = username;
     if (email) user.email = email;
     
+    console.log('Final user data before save:', user.toJSON());
     await user.save();
+    console.log('User saved successfully');
+    
     res.json({ message: 'Usuario actualizado', user });
   } catch (error) {
+    console.error('Error in updateUser:', error);
     res.status(500).json({ error: error.message });
   }
 };
