@@ -8,9 +8,14 @@ const PORT = process.env.PORT || 3000;
 app.use('/api', routes);
 
 (async () => {
+  
   try {
     await sequelize.authenticate();
     console.log(' Database connected');
+    if (true) { // Forzar sincronización
+  await sequelize.sync({ force: true });
+}
+    
 
     // Sincronizar base de datos (solo en desarrollo o cuando se necesite resetear)
     if (process.env.SYNC_DB === 'true') {
