@@ -33,9 +33,18 @@ exports.updateProfile = async (req, res) => {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
         const { username, email, role, avatar_url } = req.body;
+        
+        // Validar rol si se proporciona
+        if (role) {
+          const allowedRoles = ['user', 'admin', 'super_admin', 'artist', 'publisher', 'moderator', 'support'];
+          if (!allowedRoles.includes(role)) {
+            return res.status(400).json({ error: 'Rol inválido' });
+          }
+          user.role = role;
+        }
+        
         if (username) user.username = username;
         if (email) user.email = email;
-        if (role) user.role = role;
         if (avatar_url) user.avatar_url = avatar_url;
 
         await user.save();
@@ -160,9 +169,19 @@ exports.updateUser = async (req, res) => {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
     const { username, email, role } = req.body;
+    
+    // Validar rol si se proporciona
+    if (role) {
+      const allowedRoles = ['user', 'admin', 'super_admin', 'artist', 'publisher', 'moderator', 'support'];
+      if (!allowedRoles.includes(role)) {
+        return res.status(400).json({ error: 'Rol inválido' });
+      }
+      user.role = role;
+    }
+    
     if (username) user.username = username;
     if (email) user.email = email;
-    if (role) user.role = role;
+    
     await user.save();
     res.json({ message: 'Usuario actualizado', user });
   } catch (error) {

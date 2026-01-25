@@ -12,6 +12,13 @@ app.use('/api', routes);
     await sequelize.authenticate();
     console.log(' Database connected');
 
+    // Sincronizar base de datos (solo en desarrollo o cuando se necesite resetear)
+    if (process.env.SYNC_DB === 'true') {
+      console.log(' Synchronizing database...');
+      await sequelize.sync({ force: true }); // force: true elimina y recrea las tablas
+      console.log(' Database synchronized successfully');
+    }
+
     app.listen(PORT, () => {
       console.log(` Server running on port ${PORT}`);
     });
