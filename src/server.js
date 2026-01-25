@@ -13,7 +13,7 @@ app.use('/api', routes);
     await sequelize.authenticate();
     console.log(' Database connected');
     if (true) { // Forzar sincronización
-  await sequelize.sync({ force: true });
+  await sequelize.sync({ force: false });
 }
     
 
