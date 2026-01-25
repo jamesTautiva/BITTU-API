@@ -20,7 +20,7 @@ app.use('/api', routes);
     // Sincronizar base de datos (solo en desarrollo o cuando se necesite resetear)
     if (process.env.SYNC_DB === 'true') {
       console.log(' Synchronizing database...');
-      await sequelize.sync({ force: true }); // force: true elimina y recrea las tablas
+      await sequelize.sync({ force: false }); // force: true elimina y recrea las tablas
       console.log(' Database synchronized successfully');
     }
 
