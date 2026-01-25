@@ -15,5 +15,6 @@ router.use('/album-genres', require('./albumGenre.routes'));
 router.use('/playback-logs', require('./playback.routes'));
 router.use('/supabase', require('./supabase.routes'));
 router.use('/debug', require('./debug.routes'));
+router.use('/upload', require('./upload.routes'));
 
 module.exports = router;
