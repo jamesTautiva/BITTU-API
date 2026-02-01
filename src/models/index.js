@@ -119,4 +119,9 @@ db.TicketAttachment.belongsTo(db.TicketMessage, { foreignKey: 'message_id' });
 db.User.hasMany(db.TicketAttachment, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 db.TicketAttachment.belongsTo(db.User, { foreignKey: 'user_id' });
 
+// Legal documents and acceptances
+db.LegalDocument.hasMany(db.LegalAcceptance, { foreignKey: 'legalDocumentId', onDelete: 'CASCADE' });
+db.LegalAcceptance.belongsTo(db.LegalDocument, { foreignKey: 'legalDocumentId' });
+db.User.hasMany(db.LegalAcceptance, { foreignKey: 'userId', onDelete: 'CASCADE' });
+
 module.exports = db;
