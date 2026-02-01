@@ -10,7 +10,6 @@ exports.getUserLegalAcceptances = async (req, res) => {
       include: [
         {
           model: LegalDocument,
-          as: 'document',
           attributes: ['id', 'title', 'type', 'version', 'is_active']
         }
       ],
