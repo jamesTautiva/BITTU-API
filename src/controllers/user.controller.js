@@ -137,6 +137,26 @@ exports.uploadAvatar = async (req, res) => {
   }
 };
 
+// upload avatar by ID (for admin use)
+exports.uploadAvatarById = async (req, res) => {
+  try {
+    if (!req.file || !req.file.buffer) return res.status(400).json({ error: 'No file uploaded' });
+    const { id } = req.params;
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const ext = path.extname(req.file.originalname) || '';
+    const filename = `user_${id}_${Date.now()}${ext}`;
+    const url = await uploadFile('avatars', filename, req.file.buffer, req.file.mimetype);
+
+    user.avatar_url = url;
+    await user.save();
+    res.json({ message: 'Avatar subido', url });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // endpoints para admins
 // get all users
 exports.getAllUsers = async (req, res) => {

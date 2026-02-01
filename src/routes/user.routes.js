@@ -11,6 +11,8 @@ router.delete('/me', authenticate, userController.deleteAccount);
 const { imageUpload } = require('../middleware/upload.middleware');
 // avatar upload
 router.post('/me/avatar', authenticate, imageUpload('file'), userController.uploadAvatar);
+// avatar upload by ID (for admin use)
+router.post('/:id/avatar', authenticate, imageUpload('file'), userController.uploadAvatarById);
 //admin routes
 router.get('/admin', authenticate, userController.getAllUsers);
 router.get('/admin/:id', authenticate, userController.getUserById);
