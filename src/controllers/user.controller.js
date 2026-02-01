@@ -126,7 +126,7 @@ exports.uploadAvatar = async (req, res) => {
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
     const ext = path.extname(req.file.originalname) || '';
-    const filename = `avatars/user_${id}_${Date.now()}${ext}`;
+    const filename = `user_${id}_${Date.now()}${ext}`;
     const url = await uploadFile('avatars', filename, req.file.buffer, req.file.mimetype);
 
     user.avatar_url = url;
