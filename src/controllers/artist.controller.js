@@ -20,7 +20,9 @@ exports.createArtist = async (req, res) => {
 //get all artists
 exports.getAllArtists = async (req, res) => {
   try {
-    const artists = await Artist.findAll();
+    const artists = await Artist.findAll({
+      include: [{ model: require('../models').User, as: 'User' }]
+    });
     res.json(artists);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener los artistas' });
@@ -30,13 +32,36 @@ exports.getAllArtists = async (req, res) => {
 // get artist by id
 exports.getArtistById = async (req, res) => {
   try {
-    const artist = await Artist.findByPk(req.params.id);
+    const artist = await Artist.findByPk(req.params.id, {
+      include: [{ model: require('../models').User, as: 'User' }]
+    });
     if (!artist) {
       return res.status(404).json({ error: 'Artista no encontrado' });
     }
     res.json(artist);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener el artista' });
+  }
+};
+
+// update artist status
+exports.updateArtistStatus = async (req, res) => {
+  try {
+    const artist = await Artist.findByPk(req.params.id);
+    if (!artist) {
+      return res.status(404).json({ error: 'Artista no encontrado' });
+    }
+    const { status } = req.body;
+    
+    if (!['pending', 'approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Estado inválido' });
+    }
+    
+    artist.status = status;
+    await artist.save();
+    res.json({ message: 'Estado actualizado', artist });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar el estado' });
   }
 };
 

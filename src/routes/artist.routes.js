@@ -15,5 +15,6 @@ router.get('/user/:userId', artistController.getArtistByUserId);
 router.get('/approved', artistController.getApprovedArtists);
 router.get('/pending', artistController.getPendingArtists);
 router.get('/rejected', artistController.getRejectedArtists);
+router.put('/:id/status', authenticate, artistController.updateArtistStatus);
 
 module.exports = router;
