@@ -9,6 +9,22 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    parent_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'genres',
+        key: 'id'
+      }
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    is_metal_subgenre: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
     createdAt: {
       type: DataTypes.DATE,
       field: 'created_at'
@@ -19,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     tableName: 'genres',
-    timestamps: false
+    timestamps: true
   });
 
   return Genre;

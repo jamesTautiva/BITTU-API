@@ -56,6 +56,9 @@ db.Comment.belongsTo(db.Song, { foreignKey: 'song_id' });
 db.Album.hasMany(db.Comment, { foreignKey: 'album_id', onDelete: 'CASCADE' });
 db.Comment.belongsTo(db.Album, { foreignKey: 'album_id' });
 
+db.Genre.hasMany(db.Genre, { foreignKey: 'parent_id', as: 'subgenres', onDelete: 'CASCADE' });
+db.Genre.belongsTo(db.Genre, { foreignKey: 'parent_id', as: 'parent' });
+
 db.Album.belongsToMany(db.Genre, { through: db.AlbumGenre, foreignKey: 'album_id', onDelete: 'CASCADE' });
 db.Genre.belongsToMany(db.Album, { through: db.AlbumGenre, foreignKey: 'genre_id', onDelete: 'CASCADE' });
 
