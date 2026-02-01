@@ -16,5 +16,6 @@ router.use('/playback-logs', require('./playback.routes'));
 router.use('/supabase', require('./supabase.routes'));
 router.use('/debug', require('./debug.routes'));
 router.use('/upload', require('./upload.routes'));
+router.use('/legal-acceptances', require('./legalAcceptance.routes'));
 
 module.exports = router;

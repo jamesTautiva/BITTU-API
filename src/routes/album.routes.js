@@ -8,6 +8,7 @@ const { ensureContractAccepted } = require('../middleware/legalCheck');
 // Public read routes
 router.get('/', albumController.getAllAlbums);
 router.get('/:id', validateIdParam, albumController.getAlbumById);
+router.get('/artist/:artistId', albumController.getAlbumsByArtistId);
 
 // Protected write routes
 router.post('/', authenticate, ensureContractAccepted, validateCreateAlbum, albumController.createAlbum);

@@ -49,6 +49,30 @@ exports.getAlbumById = async (req, res) => {
   }
 };
 
+// get albums by artist id
+exports.getAlbumsByArtistId = async (req, res) => {
+  try {
+    const artistId = req.params.artistId;
+    
+    // Validate artist exists
+    const artist = await Artist.findByPk(artistId);
+    if (!artist) return res.status(404).json({ error: 'Artist not found' });
+
+    // Get albums for this artist
+    const albums = await Album.findAll({
+      where: { artist_id: artistId },
+      include: [
+        { model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.json(albums);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // update album
 exports.updateAlbum = async (req, res) => {
   try {
