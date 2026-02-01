@@ -30,12 +30,6 @@ exports.createGenre = async (req, res) => {
 exports.getAllGenres = async (req, res) => {
   try {
     const genres = await Genre.findAll({
-      include: [
-        {
-          model: Genre,
-          as: 'subgenres'
-        }
-      ],
       order: [['name', 'ASC']]
     });
     res.json(genres);
