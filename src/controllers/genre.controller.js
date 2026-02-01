@@ -33,8 +33,7 @@ exports.getAllGenres = async (req, res) => {
       include: [
         {
           model: Genre,
-          as: 'subgenres',
-          include: [{ model: Genre, as: 'subgenres' }]
+          as: 'subgenres'
         }
       ],
       order: [['name', 'ASC']]
