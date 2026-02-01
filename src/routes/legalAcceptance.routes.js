@@ -2,14 +2,11 @@ const router = require('express').Router();
 const legalAcceptanceController = require('../controllers/legalAcceptance.controller');
 const { authenticate } = require('../middleware/auth.middleware');
 
-// All routes require authentication
-router.use(authenticate);
-
-// Get user's legal acceptances
+// Get user's legal acceptances (no auth required for public access)
 router.get('/user/:userId', legalAcceptanceController.getUserLegalAcceptances);
 router.get('/user/:userId/type/:documentType', legalAcceptanceController.getUserLegalAcceptancesByType);
 
-// Accept a legal document
-router.post('/accept', legalAcceptanceController.acceptLegalDocument);
+// Accept a legal document (requires authentication)
+router.post('/accept', authenticate, legalAcceptanceController.acceptLegalDocument);
 
 module.exports = router;

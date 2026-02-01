@@ -3,7 +3,7 @@ const { LegalAcceptance, LegalDocument } = require('../models');
 // Get legal acceptances for a user
 exports.getUserLegalAcceptances = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.params.userId || req.user.id;
     
     const acceptances = await LegalAcceptance.findAll({
       where: { userId },
@@ -26,7 +26,7 @@ exports.getUserLegalAcceptances = async (req, res) => {
 // Get legal acceptances for a user by document type
 exports.getUserLegalAcceptancesByType = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.params.userId || req.user.id;
     const { documentType } = req.params;
     
     // Find active document of this type
