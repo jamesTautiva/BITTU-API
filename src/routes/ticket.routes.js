@@ -13,7 +13,7 @@ router.get('/:id', authenticate, ticketController.getTicketById);
 
 // Admin and Support routes
 router.get('/', ticketController.getAllTickets); // Temporarily without auth for testing
-router.put('/:id', ticketController.updateTicket); // Temporarily without auth for testing
+router.put('/:id', ticketController.updateTicket); // Temporarily without auth and validator for testing
 router.put('/:id/assign', ticketController.assignTicket); // Temporarily without auth for testing
 router.put('/:id/status', ticketController.updateTicketStatus); // Temporarily without auth for testing
 router.delete('/:id', authenticate, authorizeRoles('admin', 'super_admin'), ticketController.deleteTicket);
