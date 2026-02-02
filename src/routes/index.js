@@ -17,5 +17,6 @@ router.use('/supabase', require('./supabase.routes'));
 router.use('/debug', require('./debug.routes'));
 router.use('/upload', require('./upload.routes'));
 router.use('/legal-acceptances', require('./legalAcceptance.routes'));
+router.use('/legal-documents', require('./legalDocument.routes'));
 
 module.exports = router;
