@@ -53,13 +53,13 @@ exports.createMessage = async (req, res) => {
 // Get all messages for a ticket
 exports.getTicketMessages = async (req, res) => {
   try {
-    const { ticket_id } = req.params;
+    const { id } = req.params; // Corregido: era ticket_id, ahora es id
     const { page = 1, limit = 50, include_internal = false } = req.query;
 
-    console.log('🔍 getTicketMessages called for ticket_id:', ticket_id);
+    console.log('🔍 getTicketMessages called for ticket_id:', id);
 
     const offset = (page - 1) * limit;
-    const where = { ticket_id };
+    const where = { ticket_id: id }; // Usar el id como ticket_id
     
     if (include_internal !== 'true') {
       where.is_internal = false;
