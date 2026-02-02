@@ -388,15 +388,8 @@ exports.assignTicket = async (req, res) => {
     ticket.assigned_to = assigned_to;
     await ticket.save();
     
-    const updatedTicket = await Ticket.findByPk(id, {
-      include: [
-        { model: TicketCategory, attributes: ['id', 'name', 'color', 'icon'] },
-        { model: User, as: 'creator', attributes: ['id', 'name', 'email'] },
-        { model: User, as: 'assignedTo', attributes: ['id', 'name', 'email'], required: false }
-      ]
-    });
-    
-    res.json(updatedTicket);
+    // Return the updated ticket without complex associations to avoid errors
+    res.json(ticket);
   } catch (error) {
     console.error('Error assigning ticket:', error);
     res.status(500).json({ error: 'Error al asignar el ticket' });
