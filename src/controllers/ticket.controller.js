@@ -232,28 +232,8 @@ exports.updateTicket = async (req, res) => {
 
     await ticket.update(updateData);
 
-    // Return updated ticket with relations
-    const updatedTicket = await Ticket.findByPk(id, {
-      include: [
-        {
-          model: TicketCategory,
-          attributes: ['id', 'name', 'color', 'icon']
-        },
-        {
-          model: User,
-          as: 'creator',
-          attributes: ['id', 'username', 'email']
-        },
-        {
-          model: User,
-          as: 'assignedTo',
-          attributes: ['id', 'username', 'email'],
-          required: false
-        }
-      ]
-    });
-
-    res.json(updatedTicket);
+    // Return the updated ticket without complex associations to avoid errors
+    res.json(ticket);
   } catch (error) {
     console.error('Error updating ticket:', error);
     res.status(500).json({ error: 'Error al actualizar el ticket' });
