@@ -8,6 +8,7 @@ const { validateCreateTicket, validateUpdateTicket } = require('../middleware/va
 // Public routes (authenticated users)
 router.post('/', validateCreateTicket, ticketController.createTicket); // Temporarily without auth for testing
 router.get('/my-tickets', authenticate, ticketController.getUserTickets);
+router.get('/assigned-tickets', authenticate, ticketController.getAssignedTickets);
 router.get('/:id', authenticate, ticketController.getTicketById);
 
 // Admin and Support routes

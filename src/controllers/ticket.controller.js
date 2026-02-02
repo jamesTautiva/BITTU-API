@@ -91,6 +91,50 @@ exports.getAllTickets = async (req, res) => {
   }
 };
 
+// Get tickets assigned to the current user
+exports.getAssignedTickets = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    const tickets = await Ticket.findAll({
+      where: {
+        assigned_to: userId
+      },
+      include: [
+        {
+          model: TicketCategory,
+          attributes: ['id', 'name', 'color', 'icon']
+        },
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'username', 'email']
+        },
+        {
+          model: User,
+          as: 'assignedTo',
+          attributes: ['id', 'username', 'email'],
+          required: false
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+
+    res.json({
+      tickets,
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: tickets.length,
+        pages: 1
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error getting assigned tickets:', error);
+    res.status(500).json({ error: 'Error al obtener los tickets asignados', details: error.message });
+  }
+};
+
 // Get ticket by ID with messages and attachments
 exports.getTicketById = async (req, res) => {
   try {
