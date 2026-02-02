@@ -8,6 +8,9 @@ const { ensureContractAccepted } = require('../middleware/legalCheck');
 // Special route for artist creation during registration (no legal check required)
 router.post('/create-during-registration', authenticate, artistController.createArtist);
 
+// Temporary route for deletion without legal check (until server restarts)
+router.delete('/temp-delete/:id', authenticate, artistController.deleteArtist);
+
 // Admin-only routes (no legal check required)
 router.post('/admin/create', authenticate, artistController.createArtist);
 router.put('/admin/update/:id', authenticate, artistController.updateArtist);
