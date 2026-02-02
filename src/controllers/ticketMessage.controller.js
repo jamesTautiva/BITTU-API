@@ -72,9 +72,15 @@ exports.getTicketMessages = async (req, res) => {
 
     console.log('📋 Query where:', where);
 
-    // Simplificar la consulta para probar
+    // Incluir la relación con User para obtener el nombre del usuario
     const messages = await TicketMessage.findAll({
       where,
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'username', 'email']
+        }
+      ],
       order: [['created_at', 'ASC']],
       limit: parseInt(limit),
       offset: parseInt(offset)
