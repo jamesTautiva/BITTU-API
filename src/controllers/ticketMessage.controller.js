@@ -1,5 +1,13 @@
 const { TicketMessage, Ticket, User, TicketAttachment } = require('../models');
 
+// Temporal: Verificar si los modelos se importan correctamente
+console.log('🔍 Models loaded:', {
+  TicketMessage: !!TicketMessage,
+  Ticket: !!Ticket,
+  User: !!User,
+  TicketAttachment: !!TicketAttachment
+});
+
 // Create a new message in a ticket
 exports.createMessage = async (req, res) => {
   try {
@@ -48,6 +56,8 @@ exports.getTicketMessages = async (req, res) => {
     const { ticket_id } = req.params;
     const { page = 1, limit = 50, include_internal = false } = req.query;
 
+    console.log('🔍 getTicketMessages called for ticket_id:', ticket_id);
+
     const offset = (page - 1) * limit;
     const where = { ticket_id };
     
@@ -55,35 +65,30 @@ exports.getTicketMessages = async (req, res) => {
       where.is_internal = false;
     }
 
-    const { count, rows: messages } = await TicketMessage.findAndCountAll({
+    console.log('📋 Query where:', where);
+
+    // Simplificar la consulta para probar
+    const messages = await TicketMessage.findAll({
       where,
-      include: [
-        {
-          model: User,
-          attributes: ['id', 'username', 'email']
-        },
-        {
-          model: TicketAttachment,
-          required: false
-        }
-      ],
       order: [['created_at', 'ASC']],
       limit: parseInt(limit),
       offset: parseInt(offset)
     });
+
+    console.log('✅ Messages found:', messages.length);
 
     res.json({
       messages,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        total: count,
-        pages: Math.ceil(count / limit)
+        total: messages.length,
+        pages: Math.ceil(messages.length / limit)
       }
     });
   } catch (error) {
-    console.error('Error getting messages:', error);
-    res.status(500).json({ error: 'Error al obtener los mensajes' });
+    console.error('❌ Error getting messages:', error);
+    res.status(500).json({ error: 'Error al obtener los mensajes', details: error.message });
   }
 };
 
