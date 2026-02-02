@@ -12,10 +12,10 @@ console.log('🔍 Models loaded:', {
 exports.createMessage = async (req, res) => {
   try {
     const { id } = req.params; // Corregido: era ticket_id, ahora es id
-    const { message, message_type = 'text', is_internal = false } = req.body;
+    const { message, message_type = 'text', is_internal = false, is_solution = false } = req.body;
 
     console.log('🔍 createMessage called for ticket_id:', id);
-    console.log('📋 Message data:', { message, message_type, is_internal });
+    console.log('📋 Message data:', { message, message_type, is_internal, is_solution });
 
     const ticket = await Ticket.findByPk(id);
     if (!ticket) {
@@ -24,11 +24,14 @@ exports.createMessage = async (req, res) => {
 
     const user_id = req.user?.id || 1; // Get from auth middleware or default
 
+    // Si es solución, cambiar el message_type a 'solution'
+    const finalMessageType = is_solution ? 'solution' : message_type;
+
     const messageData = {
       ticket_id: id, // Usar el id como ticket_id
       user_id,
       message,
-      message_type,
+      message_type: finalMessageType,
       is_internal
     };
 
