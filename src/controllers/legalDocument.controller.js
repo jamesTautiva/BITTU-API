@@ -5,7 +5,7 @@ exports.getAllLegalDocuments = async (req, res) => {
   try {
     const documents = await LegalDocument.findAll({
       where: { is_active: true },
-      order: [['created_at', 'DESC']]
+      order: [['createdAt', 'DESC']]
     });
     res.json(documents);
   } catch (error) {

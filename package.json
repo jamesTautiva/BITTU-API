@@ -7,9 +7,11 @@
     "test": "jest --runInBand",
     "test:integration": "jest --runInBand tests/debug.integration.test.js",
     "prepare": "echo no-op",
-    "generate:diagram": "npx @mermaid-js/mermaid-cli -i docs/data-model.mmd -o docs/data-model.png",
+    "generate-diagram": "npx @mermaid-js/mermaid-cli -i docs/data-model.mmd -o docs/data-model.png",
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "seed:legal": "node scripts/seed-legal-documents.js",
+    "seed:all": "node scripts/seed-all.js"
   },
   "keywords": [],
   "author": "",

@@ -6,7 +6,18 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true
     },
     type: {
-      type: DataTypes.ENUM('artist_contract', 'terms', 'copyright'),
+      type: DataTypes.ENUM(
+        'artist_contract', 
+        'terms', 
+        'copyright',
+        'privacy_policy',
+        'data_consent',
+        'content_license',
+        'moderation_policy',
+        'monetization_terms',
+        'cookies_policy',
+        'notifications_policy'
+      ),
       allowNull: false
     },
     version: {
