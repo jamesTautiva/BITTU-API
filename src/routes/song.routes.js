@@ -7,6 +7,7 @@ const { ensureContractAccepted } = require('../middleware/legalCheck');
 // Public
 router.get('/', songController.getAllSongs);
 router.get('/:id', songController.getSongById);
+router.get('/album/:albumId', songController.getSongsByAlbumId);
 
 // Protected
 router.post('/', authenticate, ensureContractAccepted, songController.createSong);

@@ -33,7 +33,19 @@ exports.getAllArtists = async (req, res) => {
 exports.getArtistById = async (req, res) => {
   try {
     const artist = await Artist.findByPk(req.params.id, {
-      include: [{ model: require('../models').User, as: 'User' }]
+      include: [
+        { model: require('../models').User, as: 'User' },
+        { 
+          model: require('../models').Album, 
+          include: [
+            { model: require('../models').Genre, as: 'primaryGenre', attributes: ['id', 'name'] },
+            { 
+              model: require('../models').Song, 
+              order: [['created_at', 'ASC']] 
+            }
+          ]
+        }
+      ]
     });
     if (!artist) {
       return res.status(404).json({ error: 'Artista no encontrado' });

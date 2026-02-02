@@ -68,6 +68,26 @@ exports.deleteSong = async (req, res) => {
   }
 };
 
+// get songs by album id
+exports.getSongsByAlbumId = async (req, res) => {
+  try {
+    const albumId = req.params.albumId;
+    
+    // Verify album exists
+    const album = await Album.findByPk(albumId);
+    if (!album) return res.status(404).json({ error: 'Album not found' });
+
+    const songs = await Song.findAll({
+      where: { album_id: albumId },
+      order: [['created_at', 'ASC']]
+    });
+    
+    res.json(songs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // upload audio file for song
 exports.uploadAudio = async (req, res) => {
   try {

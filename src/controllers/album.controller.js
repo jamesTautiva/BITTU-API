@@ -41,7 +41,15 @@ exports.getAllAlbums = async (req, res) => {
 // get album by id
 exports.getAlbumById = async (req, res) => {
   try {
-  const album = await Album.findByPk(req.params.id, { include: [{ model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] }] });
+  const album = await Album.findByPk(req.params.id, { 
+    include: [
+      { model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] },
+      { 
+        model: Song, 
+        order: [['created_at', 'ASC']] 
+      }
+    ] 
+  });
     if (!album) return res.status(404).json({ error: 'Album not found' });
     res.json(album);
   } catch (error) {
@@ -58,11 +66,15 @@ exports.getAlbumsByArtistId = async (req, res) => {
     const artist = await Artist.findByPk(artistId);
     if (!artist) return res.status(404).json({ error: 'Artist not found' });
 
-    // Get albums for this artist
+    // Get albums for this artist with songs
     const albums = await Album.findAll({
       where: { artist_id: artistId },
       include: [
-        { model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] }
+        { model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] },
+        { 
+          model: Song, 
+          order: [['created_at', 'ASC']] 
+        }
       ],
       order: [['createdAt', 'DESC']]
     });
