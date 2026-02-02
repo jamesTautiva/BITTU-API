@@ -325,3 +325,18 @@ exports.getTicketStats = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener estadísticas' });
   }
 };
+
+// Get all ticket categories
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await TicketCategory.findAll({
+      where: { is_active: true },
+      order: [['sort_order', 'ASC'], ['name', 'ASC']]
+    });
+    
+    res.json(categories);
+  } catch (error) {
+    console.error('Error getting categories:', error);
+    res.status(500).json({ error: 'Error al obtener las categorías' });
+  }
+};
