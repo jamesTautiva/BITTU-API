@@ -118,3 +118,11 @@ exports.validateMessage = [
     .isBoolean()
     .withMessage('is_internal debe ser un valor booleano')
 ];
+
+module.exports = {
+  validateCreateTicket: exports.validateCreateTicket,
+  validateUpdateTicket: exports.validateUpdateTicket,
+  validateGetTickets: exports.validateGetTickets,
+  validateTicketId: exports.validateTicketId,
+  validateMessage: exports.validateMessage
+};

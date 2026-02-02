@@ -340,3 +340,183 @@ exports.getCategories = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener las categorías' });
   }
 };
+
+// Assign ticket to user
+exports.assignTicket = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { assigned_to } = req.body;
+    
+    const ticket = await Ticket.findByPk(id);
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket no encontrado' });
+    }
+    
+    ticket.assigned_to = assigned_to;
+    await ticket.save();
+    
+    const updatedTicket = await Ticket.findByPk(id, {
+      include: [
+        { model: TicketCategory, attributes: ['id', 'name', 'color', 'icon'] },
+        { model: User, as: 'creator', attributes: ['id', 'name', 'email'] },
+        { model: User, as: 'assignedTo', attributes: ['id', 'name', 'email'], required: false }
+      ]
+    });
+    
+    res.json(updatedTicket);
+  } catch (error) {
+    console.error('Error assigning ticket:', error);
+    res.status(500).json({ error: 'Error al asignar el ticket' });
+  }
+};
+
+// Update ticket status
+exports.updateTicketStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    const ticket = await Ticket.findByPk(id);
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket no encontrado' });
+    }
+    
+    ticket.status = status;
+    
+    // Set resolved_at or closed_at timestamps
+    if (status === 'resolved') {
+      ticket.resolved_at = new Date();
+    } else if (status === 'closed') {
+      ticket.closed_at = new Date();
+    }
+    
+    await ticket.save();
+    
+    const updatedTicket = await Ticket.findByPk(id, {
+      include: [
+        { model: TicketCategory, attributes: ['id', 'name', 'color', 'icon'] },
+        { model: User, as: 'creator', attributes: ['id', 'name', 'email'] },
+        { model: User, as: 'assignedTo', attributes: ['id', 'name', 'email'], required: false }
+      ]
+    });
+    
+    res.json(updatedTicket);
+  } catch (error) {
+    console.error('Error updating ticket status:', error);
+    res.status(500).json({ error: 'Error al actualizar el estado del ticket' });
+  }
+};
+
+// Get user tickets
+exports.getUserTickets = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      page = 1,
+      limit = 20,
+      status,
+      priority,
+      category_id,
+      search
+    } = req.query;
+
+    const offset = (page - 1) * limit;
+    const where = { user_id: userId };
+
+    // Build filters
+    if (status) where.status = status;
+    if (priority) where.priority = priority;
+    if (category_id) where.category_id = category_id;
+    
+    if (search) {
+      where[Op.or] = [
+        { title: { [Op.iLike]: `%${search}%` } },
+        { description: { [Op.iLike]: `%${search}%` } },
+        { ticket_number: { [Op.iLike]: `%${search}%` } }
+      ];
+    }
+
+    const { count, rows: tickets } = await Ticket.findAndCountAll({
+      where,
+      include: [
+        { model: TicketCategory, attributes: ['id', 'name', 'color', 'icon'] },
+        { model: User, as: 'assignedTo', attributes: ['id', 'name', 'email'], required: false }
+      ],
+      order: [['created_at', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    res.json({
+      tickets,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: count,
+        pages: Math.ceil(count / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Error getting user tickets:', error);
+    res.status(500).json({ error: 'Error al obtener los tickets del usuario' });
+  }
+};
+
+// Update ticket
+exports.updateTicket = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, category_id, priority, status, assigned_to } = req.body;
+    
+    const ticket = await Ticket.findByPk(id);
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket no encontrado' });
+    }
+    
+    // Update fields
+    if (title) ticket.title = title;
+    if (description) ticket.description = description;
+    if (category_id) ticket.category_id = category_id;
+    if (priority) ticket.priority = priority;
+    if (status) {
+      ticket.status = status;
+      if (status === 'resolved') ticket.resolved_at = new Date();
+      if (status === 'closed') ticket.closed_at = new Date();
+    }
+    if (assigned_to !== undefined) ticket.assigned_to = assigned_to;
+    
+    await ticket.save();
+    
+    const updatedTicket = await Ticket.findByPk(id, {
+      include: [
+        { model: TicketCategory, attributes: ['id', 'name', 'color', 'icon'] },
+        { model: User, as: 'creator', attributes: ['id', 'name', 'email'] },
+        { model: User, as: 'assignedTo', attributes: ['id', 'name', 'email'], required: false }
+      ]
+    });
+    
+    res.json(updatedTicket);
+  } catch (error) {
+    console.error('Error updating ticket:', error);
+    res.status(500).json({ error: 'Error al actualizar el ticket' });
+  }
+};
+
+// Delete ticket
+exports.deleteTicket = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const ticket = await Ticket.findByPk(id);
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket no encontrado' });
+    }
+    
+    await ticket.destroy();
+    
+    res.json({ message: 'Ticket eliminado correctamente' });
+  } catch (error) {
+    console.error('Error deleting ticket:', error);
+    res.status(500).json({ error: 'Error al eliminar el ticket' });
+  }
+};
