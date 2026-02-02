@@ -83,5 +83,9 @@ module.exports = (sequelize, DataTypes) => {
     ]
   });
 
+  // Asociaciones
+  TicketMessage.belongsTo(Ticket, { foreignKey: 'ticket_id', as: 'Ticket' });
+  TicketMessage.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
+
   return TicketMessage;
 };
