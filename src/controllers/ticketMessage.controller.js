@@ -8,26 +8,31 @@ console.log('🔍 Models loaded:', {
   TicketAttachment: !!TicketAttachment
 });
 
-// Create a new message in a ticket
+// Create a new message
 exports.createMessage = async (req, res) => {
   try {
-    const { ticket_id } = req.params;
+    const { id } = req.params; // Corregido: era ticket_id, ahora es id
     const { message, message_type = 'text', is_internal = false } = req.body;
-    const user_id = req.user?.id || 1; // Get from auth middleware or default
 
-    // Verify ticket exists
-    const ticket = await Ticket.findByPk(ticket_id);
+    console.log('🔍 createMessage called for ticket_id:', id);
+    console.log('📋 Message data:', { message, message_type, is_internal });
+
+    const ticket = await Ticket.findByPk(id);
     if (!ticket) {
       return res.status(404).json({ error: 'Ticket no encontrado' });
     }
 
-    const ticketMessage = await TicketMessage.create({
-      ticket_id,
+    const user_id = req.user?.id || 1; // Get from auth middleware or default
+
+    const messageData = {
+      ticket_id: id, // Usar el id como ticket_id
       user_id,
       message,
       message_type,
       is_internal
-    });
+    };
+
+    const ticketMessage = await TicketMessage.create(messageData);
 
     // Include related data in response
     const messageWithRelations = await TicketMessage.findByPk(ticketMessage.id, {
@@ -168,7 +173,7 @@ exports.deleteMessage = async (req, res) => {
 // Mark messages as read (for internal notifications)
 exports.markMessagesAsRead = async (req, res) => {
   try {
-    const { ticket_id } = req.params;
+    const { id } = req.params; // Corregido: era ticket_id, ahora es id
     const { message_ids } = req.body; // Array of message IDs
     const user_id = req.user?.id || 1;
 
@@ -188,11 +193,11 @@ exports.markMessagesAsRead = async (req, res) => {
 // Get internal notes for a ticket
 exports.getInternalNotes = async (req, res) => {
   try {
-    const { ticket_id } = req.params;
+    const { id } = req.params; // Corregido: era ticket_id, ahora es id
 
     const messages = await TicketMessage.findAll({
       where: { 
-        ticket_id,
+        ticket_id: id, // Usar el id como ticket_id
         is_internal: true 
       },
       include: [
@@ -214,18 +219,18 @@ exports.getInternalNotes = async (req, res) => {
 // Add internal note
 exports.addInternalNote = async (req, res) => {
   try {
-    const { ticket_id } = req.params;
+    const { id } = req.params; // Corregido: era ticket_id, ahora es id
     const { message } = req.body;
     const user_id = req.user?.id || 1;
 
     // Verify ticket exists
-    const ticket = await Ticket.findByPk(ticket_id);
+    const ticket = await Ticket.findByPk(id);
     if (!ticket) {
       return res.status(404).json({ error: 'Ticket no encontrado' });
     }
 
     const internalNote = await TicketMessage.create({
-      ticket_id,
+      ticket_id: id, // Usar el id como ticket_id
       user_id,
       message,
       message_type: 'internal_note',
