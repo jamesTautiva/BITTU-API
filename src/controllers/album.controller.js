@@ -115,6 +115,57 @@ exports.deleteAlbum = async (req, res) => {
   }
 };
 
+// get pending albums for admin moderation
+exports.getPendingAlbums = async (req, res) => {
+  try {
+    const albums = await Album.findAll({
+      where: { status: 'pending' },
+      include: [
+        { model: Artist, attributes: ['id', 'name'] },
+        { model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+    
+    res.json(albums);
+  } catch (error) {
+    console.error('Error getting pending albums:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// approve album
+exports.approveAlbum = async (req, res) => {
+  try {
+    const album = await Album.findByPk(req.params.id);
+    if (!album) return res.status(404).json({ error: 'Album not found' });
+
+    album.status = 'approved';
+    await album.save();
+    
+    res.json({ message: 'Album approved successfully', album });
+  } catch (error) {
+    console.error('Error approving album:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// reject album
+exports.rejectAlbum = async (req, res) => {
+  try {
+    const album = await Album.findByPk(req.params.id);
+    if (!album) return res.status(404).json({ error: 'Album not found' });
+
+    album.status = 'rejected';
+    await album.save();
+    
+    res.json({ message: 'Album rejected successfully', album });
+  } catch (error) {
+    console.error('Error rejecting album:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // upload cover
 exports.uploadCover = async (req, res) => {
   try {

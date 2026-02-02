@@ -10,6 +10,11 @@ router.get('/', albumController.getAllAlbums);
 router.get('/:id', validateIdParam, albumController.getAlbumById);
 router.get('/artist/:artistId', albumController.getAlbumsByArtistId);
 
+// Admin routes for moderation
+router.get('/admin/albums/pending', authenticate, albumController.getPendingAlbums);
+router.put('/admin/albums/:id/approve', authenticate, albumController.approveAlbum);
+router.put('/admin/albums/:id/reject', authenticate, albumController.rejectAlbum);
+
 // Protected write routes
 router.post('/', authenticate, ensureContractAccepted, validateCreateAlbum, albumController.createAlbum);
 router.put('/:id', authenticate, ensureContractAccepted, validateIdParam, validateUpdateAlbum, albumController.updateAlbum);
