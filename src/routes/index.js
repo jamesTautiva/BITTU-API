@@ -18,5 +18,6 @@ router.use('/debug', require('./debug.routes'));
 router.use('/upload', require('./upload.routes'));
 router.use('/legal-acceptances', require('./legalAcceptance.routes'));
 router.use('/legal-documents', require('./legalDocument.routes'));
+router.use('/tickets', require('./ticket.routes'));
 
 module.exports = router;
