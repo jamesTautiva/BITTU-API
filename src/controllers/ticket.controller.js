@@ -4,22 +4,44 @@ const { Op } = require('sequelize');
 // Create a new ticket
 exports.createTicket = async (req, res) => {
   try {
+    console.log('🔍 createTicket called with:', req.body);
+    
     const { title, description, category_id, priority = 'medium' } = req.body;
     const user_id = req.user?.id || 1; // Get from auth middleware or default
+
+    console.log('📝 Processing ticket creation:', { title, category_id, priority, user_id });
 
     // Verify category exists
     const category = await TicketCategory.findByPk(category_id);
     if (!category) {
+      console.log('❌ Category not found:', category_id);
       return res.status(404).json({ error: 'Categoría no encontrada' });
     }
+    
+    console.log('✅ Category found:', category.name);
+
+    // Generate ticket number manually
+    const count = await Ticket.count();
+    console.log('📊 Current ticket count:', count);
+    
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const ticket_number = `TK-${year}${month}${day}-${String(count + 1).padStart(4, '0')}`;
+    
+    console.log('🎫 Generated ticket number:', ticket_number);
 
     const ticket = await Ticket.create({
       user_id,
       title,
       description,
       category_id,
-      priority
+      priority,
+      ticket_number
     });
+    
+    console.log('✅ Ticket created successfully:', ticket.id);
 
     // Include related data in response
     const ticketWithRelations = await Ticket.findByPk(ticket.id, {
@@ -31,15 +53,15 @@ exports.createTicket = async (req, res) => {
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'name', 'email']
+          attributes: ['id', 'username', 'email']
         }
       ]
     });
 
     res.status(201).json(ticketWithRelations);
   } catch (error) {
-    console.error('Error creating ticket:', error);
-    res.status(500).json({ error: 'Error al crear el ticket' });
+    console.error('❌ Error creating ticket:', error);
+    res.status(500).json({ error: 'Error al crear el ticket', details: error.message });
   }
 };
 
@@ -83,12 +105,12 @@ exports.getTicketById = async (req, res) => {
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'name', 'email']
+          attributes: ['id', 'username', 'email']
         },
         {
           model: User,
           as: 'assignedTo',
-          attributes: ['id', 'name', 'email'],
+          attributes: ['id', 'username', 'email'],
           required: false
         },
         {
@@ -96,7 +118,7 @@ exports.getTicketById = async (req, res) => {
           include: [
             {
               model: User,
-              attributes: ['id', 'name', 'email']
+              attributes: ['id', 'username', 'email']
             },
             {
               model: TicketAttachment,
@@ -166,12 +188,12 @@ exports.updateTicket = async (req, res) => {
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'name', 'email']
+          attributes: ['id', 'username', 'email']
         },
         {
           model: User,
           as: 'assignedTo',
-          attributes: ['id', 'name', 'email'],
+          attributes: ['id', 'username', 'email'],
           required: false
         }
       ]
