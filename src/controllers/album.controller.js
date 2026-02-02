@@ -1,4 +1,4 @@
-const { Album, Artist, Genre } = require('../models');
+const { Album, Artist, Genre, Song } = require('../models');
 const path = require('path');
 const { uploadFile } = require('../utils/supabaseClient');
 
@@ -43,11 +43,7 @@ exports.getAlbumById = async (req, res) => {
   try {
   const album = await Album.findByPk(req.params.id, { 
     include: [
-      { model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] },
-      { 
-        model: Song, 
-        order: [['created_at', 'ASC']] 
-      }
+      { model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] }
     ] 
   });
     if (!album) return res.status(404).json({ error: 'Album not found' });
@@ -70,11 +66,7 @@ exports.getAlbumsByArtistId = async (req, res) => {
     const albums = await Album.findAll({
       where: { artist_id: artistId },
       include: [
-        { model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] },
-        { 
-          model: Song, 
-          order: [['created_at', 'ASC']] 
-        }
+        { model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] }
       ],
       order: [['createdAt', 'DESC']]
     });
