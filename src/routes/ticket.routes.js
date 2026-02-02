@@ -26,4 +26,7 @@ router.delete('/messages/:id', authenticate, authorizeRoles('admin', 'super_admi
 // Ticket categories
 router.get('/categories/all', ticketController.getCategories);
 
+// Temporal sync route for development
+router.post('/sync-models', ticketController.syncModels);
+
 module.exports = router;

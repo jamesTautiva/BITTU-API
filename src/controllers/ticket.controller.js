@@ -499,3 +499,19 @@ exports.deleteTicket = async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar el ticket' });
   }
 };
+
+// Temporal sync function for development
+exports.syncModels = async (req, res) => {
+  try {
+    const { TicketMessage } = require('../models');
+    
+    console.log('🔄 Sincronizando modelo TicketMessage...');
+    await TicketMessage.sync({ force: false });
+    console.log('✅ TicketMessage sincronizado correctamente');
+    
+    res.json({ message: 'Modelos sincronizados correctamente' });
+  } catch (error) {
+    console.error('❌ Error sincronizando modelos:', error);
+    res.status(500).json({ error: 'Error al sincronizar modelos', details: error.message });
+  }
+};
