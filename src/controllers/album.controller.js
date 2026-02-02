@@ -118,6 +118,8 @@ exports.deleteAlbum = async (req, res) => {
 // get pending albums for admin moderation
 exports.getPendingAlbums = async (req, res) => {
   try {
+    console.log(`[${req.user.role}] User ${req.user.id} (${req.user.email}) fetching pending albums`);
+    
     const albums = await Album.findAll({
       where: { status: 'pending' },
       include: [
@@ -127,6 +129,7 @@ exports.getPendingAlbums = async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
     
+    console.log(`[${req.user.role}] Found ${albums.length} pending albums`);
     res.json(albums);
   } catch (error) {
     console.error('Error getting pending albums:', error);
@@ -137,13 +140,25 @@ exports.getPendingAlbums = async (req, res) => {
 // approve album
 exports.approveAlbum = async (req, res) => {
   try {
-    const album = await Album.findByPk(req.params.id);
+    const albumId = req.params.id;
+    console.log(`[${req.user.role}] User ${req.user.id} (${req.user.email}) approving album ${albumId}`);
+    
+    const album = await Album.findByPk(albumId);
     if (!album) return res.status(404).json({ error: 'Album not found' });
 
     album.status = 'approved';
     await album.save();
     
-    res.json({ message: 'Album approved successfully', album });
+    console.log(`[${req.user.role}] Album ${albumId} approved successfully by ${req.user.role}`);
+    res.json({ 
+      message: 'Album approved successfully', 
+      album,
+      approvedBy: {
+        id: req.user.id,
+        email: req.user.email,
+        role: req.user.role
+      }
+    });
   } catch (error) {
     console.error('Error approving album:', error);
     res.status(500).json({ error: error.message });
@@ -153,13 +168,25 @@ exports.approveAlbum = async (req, res) => {
 // reject album
 exports.rejectAlbum = async (req, res) => {
   try {
-    const album = await Album.findByPk(req.params.id);
+    const albumId = req.params.id;
+    console.log(`[${req.user.role}] User ${req.user.id} (${req.user.email}) rejecting album ${albumId}`);
+    
+    const album = await Album.findByPk(albumId);
     if (!album) return res.status(404).json({ error: 'Album not found' });
 
     album.status = 'rejected';
     await album.save();
     
-    res.json({ message: 'Album rejected successfully', album });
+    console.log(`[${req.user.role}] Album ${albumId} rejected successfully by ${req.user.role}`);
+    res.json({ 
+      message: 'Album rejected successfully', 
+      album,
+      rejectedBy: {
+        id: req.user.id,
+        email: req.user.email,
+        role: req.user.role
+      }
+    });
   } catch (error) {
     console.error('Error rejecting album:', error);
     res.status(500).json({ error: error.message });

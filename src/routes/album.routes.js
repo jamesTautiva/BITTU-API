@@ -4,16 +4,17 @@ const { authenticate } = require('../middleware/auth.middleware');
 const { validateIdParam, validateCreateAlbum, validateUpdateAlbum } = require('../middleware/validators/album.validator');
 const { imageUpload } = require('../middleware/upload.middleware');
 const { ensureContractAccepted } = require('../middleware/legalCheck');
+const authorizeRoles = require('../middleware/role.middleware');
 
 // Public read routes
 router.get('/', albumController.getAllAlbums);
 router.get('/:id', validateIdParam, albumController.getAlbumById);
 router.get('/artist/:artistId', albumController.getAlbumsByArtistId);
 
-// Admin routes for moderation
-router.get('/admin/albums/pending', authenticate, albumController.getPendingAlbums);
-router.put('/admin/albums/:id/approve', authenticate, albumController.approveAlbum);
-router.put('/admin/albums/:id/reject', authenticate, albumController.rejectAlbum);
+// Admin and Moderator routes for moderation
+router.get('/admin/albums/pending', authenticate, authorizeRoles('admin', 'super_admin', 'moderator'), albumController.getPendingAlbums);
+router.put('/admin/albums/:id/approve', authenticate, authorizeRoles('admin', 'super_admin', 'moderator'), albumController.approveAlbum);
+router.put('/admin/albums/:id/reject', authenticate, authorizeRoles('admin', 'super_admin', 'moderator'), albumController.rejectAlbum);
 
 // Protected write routes
 router.post('/', authenticate, ensureContractAccepted, validateCreateAlbum, albumController.createAlbum);
