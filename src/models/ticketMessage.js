@@ -1,3 +1,5 @@
+const { DataTypes } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   const TicketMessage = sequelize.define('TicketMessage', {
     id: {
@@ -11,8 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'tickets',
         key: 'id'
-      },
-      onDelete: 'CASCADE'
+      }
     },
     user_id: {
       type: DataTypes.INTEGER,
@@ -20,29 +21,23 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'users',
         key: 'id'
-      },
-      onDelete: 'CASCADE'
+      }
     },
     message: {
       type: DataTypes.TEXT,
-      allowNull: false,
-      validate: {
-        len: [1, 5000]
-      }
+      allowNull: false
     },
     message_type: {
-      type: DataTypes.ENUM('text', 'system', 'internal_note'),
-      allowNull: false,
-      defaultValue: 'text'
+      type: DataTypes.ENUM('text', 'internal_note', 'solution'),
+      defaultValue: 'text',
+      allowNull: false
     },
     is_internal: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
       defaultValue: false
     },
     is_edited: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
       defaultValue: false
     },
     edited_at: {
@@ -84,8 +79,8 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   // Asociaciones
-  TicketMessage.belongsTo(Ticket, { foreignKey: 'ticket_id', as: 'Ticket' });
-  TicketMessage.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
+  TicketMessage.belongsTo(sequelize.models.Ticket, { foreignKey: 'ticket_id', as: 'Ticket' });
+  TicketMessage.belongsTo(sequelize.models.User, { foreignKey: 'user_id', as: 'User' });
 
   return TicketMessage;
 };
