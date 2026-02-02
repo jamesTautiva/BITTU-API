@@ -26,7 +26,7 @@ exports.createMessage = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['id', 'name', 'email']
+          attributes: ['id', 'username', 'email']
         },
         {
           model: TicketAttachment,
@@ -60,7 +60,7 @@ exports.getTicketMessages = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['id', 'name', 'email']
+          attributes: ['id', 'username', 'email']
         },
         {
           model: TicketAttachment,
@@ -119,7 +119,7 @@ exports.updateMessage = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['id', 'name', 'email']
+          attributes: ['id', 'username', 'email']
         }
       ]
     });
@@ -193,7 +193,7 @@ exports.getInternalNotes = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['id', 'name', 'email']
+          attributes: ['id', 'username', 'email']
         }
       ],
       order: [['created_at', 'ASC']]
@@ -231,7 +231,7 @@ exports.addInternalNote = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['id', 'name', 'email']
+          attributes: ['id', 'username', 'email']
         }
       ]
     });
