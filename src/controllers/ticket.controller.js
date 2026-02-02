@@ -6,10 +6,10 @@ exports.createTicket = async (req, res) => {
   try {
     console.log('🔍 createTicket called with:', req.body);
     
-    const { title, description, category_id, priority = 'medium' } = req.body;
+    const { title, description, category_id, priority = 'medium', assigned_to } = req.body;
     const user_id = req.user?.id || 1; // Get from auth middleware or default
 
-    console.log('📝 Processing ticket creation:', { title, category_id, priority, user_id });
+    console.log('📝 Processing ticket creation:', { title, category_id, priority, user_id, assigned_to });
 
     // Verify category exists
     const category = await TicketCategory.findByPk(category_id);
@@ -38,6 +38,7 @@ exports.createTicket = async (req, res) => {
       description,
       category_id,
       priority,
+      assigned_to: assigned_to || null,
       ticket_number
     });
     
@@ -54,6 +55,12 @@ exports.createTicket = async (req, res) => {
           model: User,
           as: 'creator',
           attributes: ['id', 'username', 'email']
+        },
+        {
+          model: User,
+          as: 'assignedTo',
+          attributes: ['id', 'username', 'email'],
+          required: false
         }
       ]
     });
