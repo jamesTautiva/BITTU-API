@@ -102,6 +102,7 @@ exports.getAllTickets = async (req, res) => {
 exports.getAssignedTickets = async (req, res) => {
   try {
     const userId = req.user.id;
+    console.log('🔍 getAssignedTickets called for user:', userId);
     
     const tickets = await Ticket.findAll({
       where: {
@@ -126,6 +127,8 @@ exports.getAssignedTickets = async (req, res) => {
       ],
       order: [['created_at', 'DESC']]
     });
+
+    console.log('✅ Found assigned tickets:', tickets.length);
 
     res.json({
       tickets,
