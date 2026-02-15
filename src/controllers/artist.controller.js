@@ -5,15 +5,30 @@ const { uploadFile } = require('../utils/supabaseClient');
 // create a new artist
 exports.createArtist = async (req, res) => {
   try {
-    const { name, bio, userId } = req.body;
+    const { name, bio, userId, user_id } = req.body;
+    
+    // Accept both userId and user_id for compatibility
+    const finalUserId = userId || user_id;
+    
+    if (!finalUserId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    
+    if (!name) {
+      return res.status(400).json({ error: 'Artist name is required' });
+    }
+    
     const newArtist = await Artist.create({ 
         name, 
-        bio,
+        bio: bio || null,
         status: 'pending',
-        user_id: userId });
+        user_id: finalUserId 
+    });
+    
     res.status(201).json(newArtist);
   } catch (error) {
-    res.status(500).json({ error: 'Error al crear el artista' });
+    console.error('Error creating artist:', error);
+    res.status(500).json({ error: 'Error al crear el artista: ' + error.message });
   }
 };
 
@@ -113,13 +128,25 @@ exports.deleteArtist = async (req, res) => {
 // get artists by user id
 exports.getArtistByUserId = async (req, res) => {
   try {
-    const artist = await Artist.findOne({ where: { user_id: req.params.userId } });
+    const userId = req.params.userId;
+    
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ error: 'Valid User ID is required' });
+    }
+    
+    const artist = await Artist.findOne({ 
+      where: { user_id: userId },
+      include: [{ model: require('../models').User, as: 'User', attributes: ['id', 'username', 'email'] }]
+    });
+    
     if (!artist) {
       return res.status(404).json({ error: 'Artista no encontrado para este usuario' });
     }
+    
     res.json(artist);
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener el artista por ID de usuario' });
+    console.error('Error getting artist by user ID:', error);
+    res.status(500).json({ error: 'Error al obtener el artista por ID de usuario: ' + error.message });
   }
 };
 
