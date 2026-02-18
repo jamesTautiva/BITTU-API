@@ -20,7 +20,7 @@ exports.validateCreateAlbum = async (req, res, next) => {
 };
 
 exports.validateUpdateAlbum = (req, res, next) => {
-  const { title, cover_url, release_date, status, genre_id } = req.body || {};
+  const { title, cover_image, release_date, status, genre_id } = req.body || {};
   if (genre_id !== undefined && genre_id !== null) {
     const gid = parseInt(genre_id, 10);
     if (Number.isNaN(gid) || gid <= 0) return res.status(400).json({ error: 'genre_id must be a positive integer' });

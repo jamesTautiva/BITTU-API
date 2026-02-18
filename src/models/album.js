@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    cover_url: {
+    cover_image: {
       type: DataTypes.STRING,
       allowNull: true
     },
@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     status: {
       type: DataTypes.ENUM('draft','pending', 'approved', 'rejected'),
       allowNull: false,
-      defaultValue: 'draft'
+      defaultValue: 'pending'
     }
   }, {
     tableName: 'albums',

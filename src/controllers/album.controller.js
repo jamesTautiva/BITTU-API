@@ -5,23 +5,20 @@ const { uploadFile } = require('../utils/supabaseClient');
 // create album
 exports.createAlbum = async (req, res) => {
   try {
-    const { artist_id, title, cover_url, release_date } = req.body;
+    const { artist_id, title, cover_image, release_date } = req.body;
 
     if (!artist_id || !title) {
       return res.status(400).json({ error: 'artist_id and title are required' });
     }
 
-    // Optionally check artist exists
-    const artist = await Artist.findByPk(artist_id);
-    if (!artist) return res.status(404).json({ error: 'Artist not found' });
-
+    // Artist validation is now handled by ensureArtistOwnership middleware
     // if genre_id provided, ensure it exists
     if (req.body.genre_id) {
       const genre = await Genre.findByPk(req.body.genre_id);
       if (!genre) return res.status(404).json({ error: 'Genre not found' });
     }
 
-    const album = await Album.create({ artist_id, title, cover_url, release_date, status: 'pending', genre_id: req.body.genre_id || null });
+    const album = await Album.create({ artist_id, title, cover_image, release_date, status: 'pending', genre_id: req.body.genre_id || null });
     res.status(201).json(album);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -83,9 +80,9 @@ exports.updateAlbum = async (req, res) => {
     const album = await Album.findByPk(req.params.id);
     if (!album) return res.status(404).json({ error: 'Album not found' });
 
-    const { title, cover_url, release_date, status, genre_id } = req.body;
+    const { title, cover_image, release_date, status, genre_id } = req.body;
     if (title) album.title = title;
-    if (cover_url) album.cover_url = cover_url;
+    if (cover_image) album.cover_image = cover_image;
     if (release_date) album.release_date = release_date;
     if (status) album.status = status;
     if (genre_id !== undefined) {
@@ -204,7 +201,7 @@ exports.uploadCover = async (req, res) => {
     const filename = `albums/album_${album.id}_${Date.now()}${ext}`;
     const url = await uploadFile('albums', filename, req.file.buffer, req.file.mimetype);
 
-    album.cover_url = url;
+    album.cover_image = url;
     await album.save();
     res.json({ message: 'Cover uploaded', url });
   } catch (error) {
