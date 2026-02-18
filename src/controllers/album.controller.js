@@ -1,26 +1,77 @@
-const { Album, Artist, Genre, Song } = require('../models');
+const { Album, Artist, Genre, Song, AlbumGenre } = require('../models');
 const path = require('path');
 const { uploadFile } = require('../utils/supabaseClient');
 
 // create album
 exports.createAlbum = async (req, res) => {
   try {
-    const { artist_id, title, cover_image, release_date } = req.body;
+    const { artist_id, title, cover_image, release_date, genre_ids } = req.body;
 
     if (!artist_id || !title) {
       return res.status(400).json({ error: 'artist_id and title are required' });
     }
 
     // Artist validation is now handled by ensureArtistOwnership middleware
-    // if genre_id provided, ensure it exists
-    if (req.body.genre_id) {
-      const genre = await Genre.findByPk(req.body.genre_id);
-      if (!genre) return res.status(404).json({ error: 'Genre not found' });
+    
+    // Parse genre_ids if it's a string
+    let parsedGenreIds = [];
+    if (genre_ids) {
+      try {
+        parsedGenreIds = typeof genre_ids === 'string' ? JSON.parse(genre_ids) : genre_ids;
+        
+        // Validate that it's an array and has max 3 items
+        if (!Array.isArray(parsedGenreIds)) {
+          return res.status(400).json({ error: 'genre_ids must be an array' });
+        }
+        
+        if (parsedGenreIds.length > 3) {
+          return res.status(400).json({ error: 'Maximum 3 genres allowed' });
+        }
+        
+        // Validate each genre exists
+        for (const genreId of parsedGenreIds) {
+          const genre = await Genre.findByPk(genreId);
+          if (!genre) return res.status(404).json({ error: `Genre with id ${genreId} not found` });
+        }
+      } catch (parseError) {
+        return res.status(400).json({ error: 'Invalid genre_ids format' });
+      }
     }
 
-    const album = await Album.create({ artist_id, title, cover_image, release_date, status: 'pending', genre_id: req.body.genre_id || null });
-    res.status(201).json(album);
+    // Create the album (without genre_id since we'll use album_genres)
+    const album = await Album.create({ 
+      artist_id, 
+      title, 
+      cover_image, 
+      release_date, 
+      status: 'pending'
+    });
+
+    // Create album-genre associations if genres provided
+    if (parsedGenreIds.length > 0) {
+      const albumGenres = parsedGenreIds.map(genreId => ({
+        album_id: album.id,
+        genre_id: genreId
+      }));
+      
+      await AlbumGenre.bulkCreate(albumGenres);
+    }
+
+    // Fetch the album with genres for response
+    const albumWithGenres = await Album.findByPk(album.id, {
+      include: [
+        {
+          model: Genre,
+          as: 'genres',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ]
+    });
+
+    res.status(201).json(albumWithGenres);
   } catch (error) {
+    console.error('Error creating album:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -28,7 +79,17 @@ exports.createAlbum = async (req, res) => {
 // get all albums
 exports.getAllAlbums = async (req, res) => {
   try {
-  const albums = await Album.findAll({ include: [{ model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] }] });
+    const albums = await Album.findAll({ 
+      include: [
+        { model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] },
+        {
+          model: Genre,
+          as: 'genres',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ]
+    });
     res.json(albums);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -38,11 +99,17 @@ exports.getAllAlbums = async (req, res) => {
 // get album by id
 exports.getAlbumById = async (req, res) => {
   try {
-  const album = await Album.findByPk(req.params.id, { 
-    include: [
-      { model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] }
-    ] 
-  });
+    const album = await Album.findByPk(req.params.id, { 
+      include: [
+        { model: Genre, as: 'primaryGenre', attributes: ['id', 'name'] },
+        {
+          model: Genre,
+          as: 'genres',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ] 
+    });
     if (!album) return res.status(404).json({ error: 'Album not found' });
     res.json(album);
   } catch (error) {
