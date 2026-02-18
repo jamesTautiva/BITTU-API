@@ -18,7 +18,7 @@ router.put('/admin/albums/:id/approve', authenticate, authorizeRoles('admin', 's
 router.put('/admin/albums/:id/reject', authenticate, authorizeRoles('admin', 'super_admin', 'moderator'), albumController.rejectAlbum);
 
 // Protected write routes
-router.post('/', authenticate, ensureContractAccepted, ensureArtistOwnership, validateCreateAlbum, albumController.createAlbum);
+router.post('/', authenticate, /* ensureContractAccepted, */ ensureArtistOwnership, validateCreateAlbum, albumController.createAlbum);
 router.put('/:id', authenticate, ensureContractAccepted, validateIdParam, ensureAlbumOwnership, validateUpdateAlbum, albumController.updateAlbum);
 router.delete('/:id', authenticate, validateIdParam, ensureAlbumOwnership, albumController.deleteAlbum);
 router.post('/:id/cover', authenticate, ensureContractAccepted, validateIdParam, ensureAlbumOwnership, imageUpload('file'), albumController.uploadCover);
