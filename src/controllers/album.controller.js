@@ -57,19 +57,10 @@ exports.createAlbum = async (req, res) => {
       await AlbumGenre.bulkCreate(albumGenres);
     }
 
-    // Fetch the album with genres for response
-    const albumWithGenres = await Album.findByPk(album.id, {
-      include: [
-        {
-          model: Genre,
-          as: 'genres',
-          attributes: ['id', 'name'],
-          through: { attributes: [] }
-        }
-      ]
-    });
+    // Fetch the album without genres for now (to avoid association error)
+    const albumResponse = await Album.findByPk(album.id);
 
-    res.status(201).json(albumWithGenres);
+    res.status(201).json(albumResponse);
   } catch (error) {
     console.error('Error creating album:', error);
     res.status(500).json({ error: error.message });
