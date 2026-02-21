@@ -50,17 +50,28 @@ const ensureAlbumOwnership = async (req, res, next) => {
  */
 const ensureArtistOwnership = async (req, res, next) => {
   try {
+    // Debug: Log request details
+    console.log('=== ENSURE ARTIST OWNERSHIP DEBUG ===');
+    console.log('req.body type:', typeof req.body);
+    console.log('req.body:', req.body);
+    console.log('req.body keys:', req.body ? Object.keys(req.body) : 'undefined');
+    
     // Handle both JSON and FormData
     let artist_id;
     if (req.body && req.body.artist_id) {
       // JSON request
       artist_id = req.body.artist_id;
+      console.log('Using JSON artist_id:', artist_id);
     } else if (req.body && typeof req.body.get === 'function') {
       // FormData request
       artist_id = req.body.get('artist_id');
+      console.log('Using FormData artist_id:', artist_id);
     }
     
+    console.log('Final artist_id:', artist_id);
+    
     if (!artist_id) {
+      console.log('ERROR: artist_id is missing or undefined');
       return res.status(400).json({ error: 'artist_id is required' });
     }
 
