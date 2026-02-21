@@ -18,5 +18,23 @@ const makeUpload = (allowedMimes) => multer({
   }
 });
 
+// Middleware for FormData with optional file upload
+const formDataUpload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    if (file) {
+      // If file exists, validate it
+      if (!imageMimes.includes(file.mimetype)) {
+        return cb(new Error('Invalid file type'), false);
+      }
+    }
+    cb(null, true);
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB by default
+  }
+}).single('cover_image'); // Make file optional
+
 exports.imageUpload = (fieldName) => makeUpload(imageMimes).single(fieldName);
 exports.audioUpload = (fieldName) => makeUpload(audioMimes).single(fieldName);
+exports.formDataUpload = formDataUpload;
