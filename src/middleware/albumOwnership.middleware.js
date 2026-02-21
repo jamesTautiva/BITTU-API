@@ -50,7 +50,15 @@ const ensureAlbumOwnership = async (req, res, next) => {
  */
 const ensureArtistOwnership = async (req, res, next) => {
   try {
-    const { artist_id } = req.body;
+    // Handle both JSON and FormData
+    let artist_id;
+    if (req.body && req.body.artist_id) {
+      // JSON request
+      artist_id = req.body.artist_id;
+    } else if (req.body && typeof req.body.get === 'function') {
+      // FormData request
+      artist_id = req.body.get('artist_id');
+    }
     
     if (!artist_id) {
       return res.status(400).json({ error: 'artist_id is required' });
