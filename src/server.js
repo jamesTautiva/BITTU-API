@@ -12,10 +12,11 @@ app.use('/api', routes);
   try {
     await sequelize.authenticate();
     console.log(' Database connected');
-    if (true) { // Forzar sincronización
-  await sequelize.sync({ alter: true }); // Usar alter para modificar tablas existentes
-}
     
+    // Sincronización forzada desactivada para inicio rápido
+    // if (true) { // Forzar sincronización
+    //  await sequelize.sync({ alter: true }); // Usar alter para modificar tablas existentes
+    // }
 
     // Sincronizar base de datos (solo en desarrollo o cuando se necesite resetear)
     if (process.env.SYNC_DB === 'true') {

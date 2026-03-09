@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const songController = require('../controllers/song.controller');
 const { authenticate } = require('../middleware/auth.middleware');
-const { audioUpload } = require('../middleware/upload.middleware');
+const { audioUpload, formDataUpload, audioFormDataUpload } = require('../middleware/upload.middleware');
 const { ensureContractAccepted } = require('../middleware/legalCheck');
 
 // Public
@@ -10,7 +10,7 @@ router.get('/:id', songController.getSongById);
 router.get('/album/:albumId', songController.getSongsByAlbumId);
 
 // Protected
-router.post('/', authenticate, ensureContractAccepted, songController.createSong);
+router.post('/', authenticate, ensureContractAccepted, audioFormDataUpload, songController.createSong);
 router.put('/:id', authenticate, ensureContractAccepted, songController.updateSong);
 router.delete('/:id', authenticate, songController.deleteSong);
 router.post('/:id/upload', authenticate, ensureContractAccepted, audioUpload('file'), songController.uploadAudio);

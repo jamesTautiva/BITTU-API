@@ -57,6 +57,48 @@ exports.getUserLegalAcceptancesByType = async (req, res) => {
   }
 };
 
+// Check artist contract status and get active contract
+exports.checkArtistContractStatus = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Find active artist contract
+    const activeContract = await LegalDocument.findOne({
+      where: {
+        type: 'artist_contract',
+        is_active: true
+      },
+      order: [['createdAt', 'DESC']]
+    });
+
+    if (!activeContract) {
+      return res.json({
+        hasContract: false,
+        needsAcceptance: false,
+        contract: null,
+        acceptance: null
+      });
+    }
+
+    // Check if user has accepted this contract
+    const acceptance = await LegalAcceptance.findOne({
+      where: {
+        userId,
+        legalDocumentId: activeContract.id
+      }
+    });
+
+    res.json({
+      hasContract: true,
+      needsAcceptance: !acceptance,
+      contract: activeContract,
+      acceptance: acceptance
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Accept a legal document
 exports.acceptLegalDocument = async (req, res) => {
   try {

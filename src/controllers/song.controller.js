@@ -5,7 +5,27 @@ const { uploadFile } = require('../utils/supabaseClient');
 // create song
 exports.createSong = async (req, res) => {
   try {
-    const { album_id, title, audio_url } = req.body;
+    // Handle both JSON and FormData requests
+    let album_id, title, audio_url;
+    
+    if (req.body && req.files) {
+      // FormData request with multer.fields()
+      album_id = req.body.album_id;
+      title = req.body.title;
+      audio_url = req.body.audio_url;
+      
+      // Handle audio file if uploaded
+      if (req.files && req.files.audio_file && req.files.audio_file[0]) {
+        const audioFile = req.files.audio_file[0];
+        const ext = path.extname(audioFile.originalname) || '';
+        const filename = `songs/song_${Date.now()}${ext}`;
+        audio_url = await uploadFile('songs', filename, audioFile.buffer, audioFile.mimetype);
+      }
+    } else {
+      // JSON request
+      ({ album_id, title, audio_url } = req.body);
+    }
+    
     if (!album_id || !title) return res.status(400).json({ error: 'album_id and title are required' });
 
     const album = await Album.findByPk(album_id);
