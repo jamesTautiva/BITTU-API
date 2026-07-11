@@ -11,7 +11,10 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public'))); // Para CSS/JS estático
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Para imágenes subidas
 
-app.use(cors());
+app.use(cors({                                    
+        origin: 'https://bittu-cloud.netlify.app',
+        credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
