@@ -5,31 +5,18 @@ module.exports = {
     const dialect = queryInterface.sequelize.getDialect();
 
     if (dialect === 'postgres') {
-      // PostgreSQL: usar tipos ENUM específicos
-      await queryInterface.sequelize.query(`
-        CREATE TYPE users_role_enum_new AS ENUM (
-          'user', 'admin', 'super_admin', 'artist', 'publisher', 'moderator', 'support'
-        );
-      `);
+      // PostgreSQL: agregar valores al ENUM existente
+      const newRoles = ['super_admin', 'publisher', 'moderator', 'support'];
 
-      await queryInterface.changeColumn('users', 'role', {
-        type: Sequelize.TEXT,
-        allowNull: false
-      });
-
-      await queryInterface.changeColumn('users', 'role', {
-        type: Sequelize.ENUM('user', 'admin', 'super_admin', 'artist', 'publisher', 'moderator', 'support'),
-        allowNull: false,
-        defaultValue: 'user'
-      });
-
-      await queryInterface.sequelize.query(`
-        DROP TYPE IF EXISTS users_role_enum;
-      `);
-
-      await queryInterface.sequelize.query(`
-        ALTER TYPE users_role_enum_new RENAME TO users_role_enum;
-      `);
+      for (const role of newRoles) {
+        try {
+          await queryInterface.sequelize.query(`
+            ALTER TYPE enum_users_role ADD VALUE IF NOT EXISTS '${role}';
+          `);
+        } catch (error) {
+          console.log(`Role ${role} already exists or error:`, error.message);
+        }
+      }
     } else {
       // MariaDB/MySQL: cambiar directamente el ENUM en la columna
       await queryInterface.changeColumn('users', 'role', {
@@ -44,28 +31,9 @@ module.exports = {
     const dialect = queryInterface.sequelize.getDialect();
 
     if (dialect === 'postgres') {
-      await queryInterface.sequelize.query(`
-        CREATE TYPE users_role_enum_old AS ENUM ('admin', 'artist', 'user');
-      `);
-
-      await queryInterface.changeColumn('users', 'role', {
-        type: Sequelize.TEXT,
-        allowNull: false
-      });
-
-      await queryInterface.changeColumn('users', 'role', {
-        type: Sequelize.ENUM('admin', 'artist', 'user'),
-        allowNull: false,
-        defaultValue: 'user'
-      });
-
-      await queryInterface.sequelize.query(`
-        DROP TYPE IF EXISTS users_role_enum;
-      `);
-
-      await queryInterface.sequelize.query(`
-        ALTER TYPE users_role_enum_old RENAME TO users_role_enum;
-      `);
+      // PostgreSQL: no es fácil eliminar valores de ENUM en PostgreSQL
+      // Solo revertimos el defaultValue si es necesario
+      console.log('PostgreSQL ENUM values cannot be easily removed. Keeping extended ENUM.');
     } else {
       // MariaDB/MySQL: revertir al ENUM original
       await queryInterface.changeColumn('users', 'role', {
