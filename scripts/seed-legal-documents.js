@@ -1,5 +1,6 @@
 require('dotenv').config();
-const { LegalDocument } = require('../models');
+const { LegalDocument } = require('../src/models');
+const sequelize = require('../src/config/database');
 
 // Crear documentos legales básicos para BITU
 const legalDocuments = [

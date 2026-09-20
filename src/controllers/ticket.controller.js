@@ -4,33 +4,45 @@ const { Op } = require('sequelize');
 // Create a new ticket
 exports.createTicket = async (req, res) => {
   try {
-    console.log('🔍 createTicket called with:', req.body);
-    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 createTicket called with:', req.body);
+    }
+
     const { title, description, category_id, priority = 'medium', assigned_to } = req.body;
     const user_id = req.user?.id || 1; // Get from auth middleware or default
 
-    console.log('📝 Processing ticket creation:', { title, category_id, priority, user_id, assigned_to });
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📝 Processing ticket creation:', { title, category_id, priority, user_id, assigned_to });
+    }
 
     // Verify category exists
     const category = await TicketCategory.findByPk(category_id);
     if (!category) {
-      console.log('❌ Category not found:', category_id);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('❌ Category not found:', category_id);
+      }
       return res.status(404).json({ error: 'Categoría no encontrada' });
     }
-    
-    console.log('✅ Category found:', category.name);
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ Category found:', category.name);
+    }
 
     // Generate ticket number manually
     const count = await Ticket.count();
-    console.log('📊 Current ticket count:', count);
-    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📊 Current ticket count:', count);
+    }
+
     const date = new Date();
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const ticket_number = `TK-${year}${month}${day}-${String(count + 1).padStart(4, '0')}`;
-    
-    console.log('🎫 Generated ticket number:', ticket_number);
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🎫 Generated ticket number:', ticket_number);
+    }
 
     const ticket = await Ticket.create({
       user_id,
@@ -41,8 +53,10 @@ exports.createTicket = async (req, res) => {
       assigned_to: assigned_to || null,
       ticket_number
     });
-    
-    console.log('✅ Ticket created successfully:', ticket.id);
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ Ticket created successfully:', ticket.id);
+    }
 
     // Include related data in response
     const ticketWithRelations = await Ticket.findByPk(ticket.id, {

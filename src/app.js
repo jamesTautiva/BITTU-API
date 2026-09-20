@@ -11,10 +11,26 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public'))); // Para CSS/JS estático
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Para imágenes subidas
 
-app.use(cors({                                    
-        origin: 'https://bittu-cloud.netlify.app',
-        credentials: true
-}));
+// Dynamic CORS configuration based on environment
+const corsOptions = {
+  credentials: true,
+  origin: (origin, callback) => {
+    const allowedOrigins = process.env.NODE_ENV === 'production'
+      ? ['https://bittu-cloud.netlify.app']
+      : ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'];
+
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

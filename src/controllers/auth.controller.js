@@ -9,8 +9,22 @@ exports.register = async (req, res) => {
     if (!username || !email || !password) {
       return res.status(400).json({ message: 'username, email and password are required' });
     }
+
+    // Password complexity validation
     if (password.length < 8) {
       return res.status(400).json({ message: 'password must be at least 8 characters' });
+    }
+    if (!/[A-Z]/.test(password)) {
+      return res.status(400).json({ message: 'password must contain at least one uppercase letter' });
+    }
+    if (!/[a-z]/.test(password)) {
+      return res.status(400).json({ message: 'password must contain at least one lowercase letter' });
+    }
+    if (!/[0-9]/.test(password)) {
+      return res.status(400).json({ message: 'password must contain at least one number' });
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return res.status(400).json({ message: 'password must contain at least one special character' });
     }
 
     const exists = await User.findOne({ where: { email } });

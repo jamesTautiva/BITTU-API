@@ -1,22 +1,73 @@
 require('dotenv').config();
 const app = require('./app');
 const sequelize = require('./config/database');
-const routes = require('./routes');
+const { Genre, LegalDocument, TicketCategory } = require('./models');
+
+// Validate critical environment variables
+const requiredEnvVars = ['JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ Missing required environment variables:', missingEnvVars.join(', '));
+  console.error('Please set these variables in your .env file');
+  process.exit(1);
+}
 
 const PORT = process.env.PORT || 3000;
 
-app.use('/api', routes);
+// Función para verificar y crear datos iniciales si no existen
+async function seedInitialData() {
+  try {
+    console.log('🌱 Verificando datos iniciales...');
+
+    // Verificar y crear géneros si no existen
+    const genreCount = await Genre.count();
+    if (genreCount === 0) {
+      console.log('🎵 Creando géneros iniciales...');
+      const { createGenres } = require('../scripts/create_genres');
+      await createGenres();
+    } else {
+      console.log(`✅ Géneros ya existen (${genreCount} registros)`);
+    }
+
+    // Verificar y crear documentos legales si no existen
+    const docCount = await LegalDocument.count();
+    if (docCount === 0) {
+      console.log('📄 Creando documentos legales iniciales...');
+      const { seedLegalDocuments } = require('../scripts/seed-legal-documents');
+      await seedLegalDocuments();
+    } else if (docCount < 9) {
+      console.log(`📄 Actualizando documentos legales (solo ${docCount} de 9 encontrados)...`);
+      // Limpiar y recrear documentos legales para tener todos los 9
+      await LegalDocument.destroy({ where: {} });
+      const { seedLegalDocuments } = require('../scripts/seed-legal-documents');
+      await seedLegalDocuments();
+    } else {
+      console.log(`✅ Documentos legales ya existen (${docCount} registros)`);
+    }
+
+    // Verificar y crear categorías de tickets si no existen
+    const ticketCategoryCount = await TicketCategory.count();
+    if (ticketCategoryCount === 0) {
+      console.log('🎫 Creando categorías de tickets iniciales...');
+      const { runSeeds } = require('./seeds');
+      await runSeeds();
+    } else {
+      console.log(`✅ Categorías de tickets ya existen (${ticketCategoryCount} registros)`);
+    }
+
+    console.log('🎉 Datos iniciales verificados/completados');
+  } catch (error) {
+    console.error('❌ Error en seeds iniciales:', error.message);
+    // No detener la aplicación si fallan los seeds
+  }
+}
 
 (async () => {
-  
+
   try {
     await sequelize.authenticate();
     console.log(' Database connected');
-    
-    // Sincronización forzada desactivada para inicio rápido
-    // if (true) { // Forzar sincronización
-    //  await sequelize.sync({ alter: true }); // Usar alter para modificar tablas existentes
-    // }
 
     // Sincronizar base de datos (solo en desarrollo o cuando se necesite resetear)
     if (process.env.SYNC_DB === 'true') {
@@ -24,6 +75,9 @@ app.use('/api', routes);
       await sequelize.sync({ alter: true }); // Usar alter para modificar tablas existentes
       console.log(' Database synchronized successfully');
     }
+
+    // Ejecutar seeds iniciales automáticamente
+    await seedInitialData();
 
     app.listen(PORT, () => {
       console.log(` Server running on port ${PORT}`);

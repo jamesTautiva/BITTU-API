@@ -5,10 +5,12 @@ const { uploadFile } = require('../utils/supabaseClient');
 // create album
 exports.createAlbum = async (req, res) => {
   try {
-    console.log('=== CREATE ALBUM DEBUG ===');
-    console.log('req.body type:', typeof req.body);
-    console.log('req.body:', req.body);
-    console.log('req.file:', req.file);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== CREATE ALBUM DEBUG ===');
+      console.log('req.body type:', typeof req.body);
+      console.log('req.body:', req.body);
+      console.log('req.file:', req.file);
+    }
     
     // Handle both JSON and FormData
     let artist_id, title, cover_image, release_date, genre_ids;
@@ -32,13 +34,17 @@ exports.createAlbum = async (req, res) => {
       
       // Handle file upload
       if (req.file) {
-        console.log('Processing file upload...');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Processing file upload...');
+        }
         const ext = path.extname(req.file.originalname) || '';
         const filename = `albums/temp_album_${Date.now()}${ext}`;
-        
+
         try {
           cover_image = await uploadFile('albums', filename, req.file.buffer, req.file.mimetype);
-          console.log('File uploaded successfully:', cover_image);
+          if (process.env.NODE_ENV === 'development') {
+            console.log('File uploaded successfully:', cover_image);
+          }
         } catch (uploadError) {
           console.error('Error uploading file:', uploadError);
           return res.status(500).json({ error: 'Error uploading cover image: ' + uploadError.message });
