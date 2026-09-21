@@ -69,12 +69,12 @@ async function seedInitialData() {
     await sequelize.authenticate();
     console.log(' Database connected');
 
-    // Sincronizar base de datos (solo en desarrollo o cuando se necesite resetear)
-    if (process.env.SYNC_DB === 'true') {
-      console.log(' Synchronizing database...');
       await sequelize.sync({ alter: true }); // Usar alter para modificar tablas existentes
-      console.log(' Database synchronized successfully');
-    }
+    // Sincronizar base de datos siempre al iniciar
+    // Esto crea tablas faltantes y agrega columnas faltantes sin borrar datos
+    console.log(' Synchronizing database...');
+    await sequelize.sync({ alter: true });
+    console.log(' Database synchronized successfully');
 
     // Ejecutar seeds iniciales automáticamente
     await seedInitialData();
