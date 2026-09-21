@@ -16,8 +16,8 @@ const corsOptions = {
   credentials: true,
   origin: (origin, callback) => {
     const allowedOrigins = process.env.NODE_ENV === 'production'
-      ? ['https://bittu-cloud.netlify.app']
-      : ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'];
+      ? ['https://bittu-cloud.netlify.app', 'http://localhost:5173', 'http://localhost:3000', 'http://localhost:3001']
+      : ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://localhost:5173'];
 
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
